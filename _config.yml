@@ -1,0 +1,30 @@
+# Dependencies
+kramdown:
+  # Use GitHub flavored markdown, including triple backtick fenced code blocks
+  input: GFM
+  # Jekyll 3 and GitHub Pages now only support rouge for syntax highlighting
+  syntax_highlighter: rouge
+  
+plugins: [jekyll-paginate]
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            'devbits'
+tagline:          'random development tidbits'
+description:      'random development tidbits by Ian Keen'
+url:              https://iankeen.tech
+
+author:
+  name:           'Ian Keen'
+
+paginate:         1
+
+# Custom vars
+version:          1.0.0
+
+github:
+  repo:           https://github.com/IanKeen
+
+twitter:          https://twitter.com/IanKay
