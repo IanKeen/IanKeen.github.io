@@ -59,7 +59,7 @@ layout: default
     }
   }
   $.ajax("https://api.github.com/repos/IanKeen/iankeen.github.com/issues/{{page.commentIssueId}}/comments?per_page=100", {
-    headers: {Accept: "application/vnd.github.v3+json"},
+    headers: {Accept: "application/vnd.github.v3.full+json"},
     dataType: "json",
     success: function(msg){
       loadComments(msg);
