@@ -1,6 +1,7 @@
 ---
 layout: post
 title: A fresh start
+commentIssueId: 1
 ---
 
 After a bit of a love/hate relationship with [Medium](https://medium.com/@iankeen),
