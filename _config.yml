@@ -30,7 +30,9 @@ version:          1.0.0
 
 github:
   repo:           https://github.com/IanKeen
+  user:           IanKeen
+  project:        iankeen.github.io
 
 twitter:          https://twitter.com/IanKay
 
-jekyll-mentions: https://twitter.com
+jekyll-mentions:  https://twitter.com
