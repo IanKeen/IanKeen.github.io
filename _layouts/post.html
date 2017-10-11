@@ -41,8 +41,8 @@ layout: default
 
 <div id="comments">
   <h2>Comments</h2>
-  <div id="header">
-    <a href="https://github.com/IanKeen/iankeen.github.io/issues/{{page.commentIssueId}}">Leave a comment</a>.
+  <div id="header">    
+    <a href="https://github.com/{{site.github.user}}/{{site.github.project}}/issues/{{page.commentIssueId}}">Leave a comment</a>.
   </div>
 </div>
 
@@ -58,7 +58,7 @@ layout: default
       $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
     }
   }
-  $.ajax("https://api.github.com/repos/IanKeen/iankeen.github.com/issues/{{page.commentIssueId}}/comments?per_page=100", {
+  $.ajax("https://api.github.com/repos/{{site.github.user}}/{{site.github.project}}/issues/{{page.commentIssueId}}/comments?per_page=100", {
     headers: {Accept: "application/vnd.github.v3.full+json"},
     dataType: "json",
     success: function(msg){
