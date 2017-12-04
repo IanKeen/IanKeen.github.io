@@ -1,0 +1,12 @@
+.tag {
+    background: #eee;
+    border-radius: 3px 0 0 3px;
+    color: #999;
+    display: inline-block;
+    height: 26px;
+    line-height: 26px;
+    padding: 0 10px 0 13px;
+    position: relative;
+    margin: 0 5px 5px 0;
+    text-decoration: none;
+}
