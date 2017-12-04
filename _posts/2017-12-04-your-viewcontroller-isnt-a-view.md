@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Your ViewController isn’t a View
-commentIssueId: 2
+commentIssueId: 4
 tags: mvc viewcontroller
 ---
 
