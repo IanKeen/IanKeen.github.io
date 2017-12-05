@@ -51,12 +51,14 @@ Now that we’ve had a think about these things lets break our original items ou
 * Animate the loading indicator in/out
 * Show/hide keyboard
 
-### What it does (UIViewController)
+### What it does (UIViewController) &#42;
 * Performs Facebook login
 * Performs Google login
 * Performs email login
 * Show/hide loading indicator
 * Resize when keyboard shows/hides
+
+> &#42; NOTE: view controllers accept user input and _trigger_ actions like logging in. However you should not put all the code that _performs_ these actions there. Please use separate service objects in conjunction with this technique.
 
 We can see that what this screen _really_ does is much more than we originally thought. However now that we have a clearer separation of concerns we can break the original view controller down into a separate view and controller that handle their own, distinct, roles.
 
