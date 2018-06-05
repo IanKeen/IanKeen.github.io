@@ -11,9 +11,9 @@ The data I want to end up with looks something like:
 
 ```swift
 struct User {
-	let firstName: String
-	let lastName: String
-	let age: Int?
+    let firstName: String
+    let lastName: String
+    let age: Int?
 }
 ```
 
@@ -21,9 +21,9 @@ There are multiple ways to go about collecting this data, I could simply give ea
 
 ```swift
 class FirstNameViewController: UIViewController {
-	private var firstName: String?
-	
-	// ...
+    private var firstName: String?
+    
+    // ...
 }
 ```
 
@@ -36,9 +36,9 @@ An alternate approach would be to have a second version of our model with option
 
 ```swift
 struct PartialUser {
-	let firstName: String?
-	let lastName: String?
-	let age: Int?
+    let firstName: String?
+    let lastName: String?
+    let age: Int?
 }
 ```
 
@@ -46,9 +46,9 @@ This is an improvement, we now have all the pieces in one place. We can create a
 
 ```swift
 extension User {
-	init(from partial: PartialUser) {
-		// ...
-	}
+    init(from partial: PartialUser) {
+        // ...
+    }
 }
 ```
 
@@ -98,9 +98,9 @@ Let's start by putting in the `KeyPath` based `Dictionary` we have already to ke
 
 ```swift
 struct Partial<T> {
-   private var data: [PartialKeyPath<T>: Any] = [:]
-   
-   //...
+    private var data: [PartialKeyPath<T>: Any] = [:]
+    
+    //...
 }
 ```
 
@@ -171,11 +171,11 @@ And we can now extend our original `User` model like so:
 
 ```swift
 extension User {
-	init(from partial: Partial<User>) throws {
+    init(from partial: Partial<User>) throws {
         self.firstName = try partial.value(for: \.firstName)
         self.lastName = try partial.value(for: \.lastName)
         self.age = partial.value(for: \.age)
-	}
+    }
 }
 ```
 
