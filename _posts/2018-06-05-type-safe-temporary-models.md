@@ -62,7 +62,7 @@ It's worth noting that neither of these solution scale well for other uses, ther
 
 We could try to solve the scaling problem with a `Dictionary`... what about using `[String: Any]`? While this scales fine it's a step backwards in safety.
 
-`String` keys are problematic, they are prone to typos and will easily fall out of sync. We could look at using a `String` enum but then we'e re-introduced our scaling issue again!
+`String` keys are problematic, they are prone to typos and will easily fall out of sync. We could look at using a `String` enum but then we've re-introduced our scaling issue again!
 
 On the value side `Any` strips all our type information and we would then have to cast values back top the desired types again anyway.
 
