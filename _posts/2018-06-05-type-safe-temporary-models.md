@@ -5,8 +5,6 @@ commentIssueId: 7
 tags: generics keypath
 ---
 
-# Type safe temporary models
-
 Recently I had to build a system to onboard users. This meant collecting different pieces of information over a number of screens. We are also utilizing A/B testing which means not only can the order of screens change, but certain pieces of information may be collected by a single screen or broken up across many.
 
 The data I want to end up with looks something like:
