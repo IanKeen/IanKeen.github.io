@@ -142,48 +142,9 @@ Here we are encapsulating the casting of `Any` to the desired type and adding er
 
 ---
 
-## Putting it all together
-
-This is what our full `Partial<T>` looks like:
-
-```swift
-struct Partial<T> {
-    enum Error: Swift.Error {
-        case valueNotFound
-    }
-    
-    private var data: [PartialKeyPath<T>: Any] = [:]
-    
-    mutating func update<U>(_ keyPath: KeyPath<T, U>, to newValue: U?) {
-        data[keyPath] = newValue
-    }
-    func value<U>(for keyPath: KeyPath<T, U>) throws -> U {
-        guard let value = data[keyPath] as? U else { throw Error.valueNotFound }
-        return value
-    }
-    func value<U>(for keyPath: KeyPath<T, U?>) -> U? {
-        return data[keyPath] as? U
-    }
-}
-```
-
-And we can now extend our original `User` model like so:
-
-```swift
-extension User {
-    init(from partial: Partial<User>) throws {
-        self.firstName = try partial.value(for: \.firstName)
-        self.lastName = try partial.value(for: \.lastName)
-        self.age = partial.value(for: \.age)
-    }
-}
-```
-
----
-
 ## Dragons! 🐉
 
-I should point out that there is one potential gotcha with this type... when you use `update` you are only associating a single `KeyPath` with a single value. What this means is that if you are working with data like:
+I should point out that there is one potential gotcha with the current implementation... when you use `update(_:to:)` you are only associating a single `KeyPath` with a single value. What this means is that if you are working with data like:
 
 ```swift
 struct Pet {
@@ -213,6 +174,67 @@ This will fail because the inner `Dictionary` does not have an entry for `\.pet.
 ```swift
 let pet = try partial.value(for: \.pet)
 let petName = pet.name
+```
+
+To correct this we can add an overload for `value(for:)` that first extracts the stored property then allows us you use `KeyPath`s to dig further down:
+
+```swift
+    func value<U, V>(for keyPath: KeyPath<T, U>, _ inner: KeyPath<U, V>) throws -> V {
+        let root = try value(for: keyPath)
+        return root[keyPath: inner]
+    }
+```
+
+Using this you could then do
+
+```swift
+let petName: String = try partial.value(for: \.pet, \.name)
+```
+
+This is great because once you have the 'root' object the inner `KeyPath` can dig down any number of nested levels.
+
+---
+
+## Putting it all together
+
+This is what our full `Partial<T>` looks like:
+
+```swift
+struct Partial<T> {
+    enum Error: Swift.Error {
+        case valueNotFound
+    }
+    
+    private var data: [PartialKeyPath<T>: Any] = [:]
+    
+    mutating func update<U>(_ keyPath: KeyPath<T, U>, to newValue: U?) {
+        data[keyPath] = newValue
+    }
+    func value<U>(for keyPath: KeyPath<T, U>) throws -> U {
+        guard let value = data[keyPath] as? U else { throw Error.valueNotFound }
+        return value
+    }
+    func value<U>(for keyPath: KeyPath<T, U?>) -> U? {
+        return data[keyPath] as? U
+    }
+    func value<U, V>(for keyPath: KeyPath<T, U>, _ inner: KeyPath<U, V>) throws -> V {
+        let root = try value(for: keyPath)
+        return root[keyPath: inner]
+    }
+
+}
+```
+
+And we can now extend our original `User` model like so:
+
+```swift
+extension User {
+    init(from partial: Partial<User>) throws {
+        self.firstName = try partial.value(for: \.firstName)
+        self.lastName = try partial.value(for: \.lastName)
+        self.age = partial.value(for: \.age)
+    }
+}
 ```
 
 ---
