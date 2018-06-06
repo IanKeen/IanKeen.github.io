@@ -187,4 +187,6 @@ Sadly we are not able to provide a default implementation for the convenience `i
 
 It's a shame but regardless, I think this is an interesting use of `KeyPath`s. I also like the feel of this solution when compared to the other attempts because of the ability to exactly mirror the underlying model and the resulting compiler safety.
 
+**UPDATE:** I forgot to mention that while there is no way to provide a default implementation for the convenience `init` you _can_ of course use a tool like [Sourcery](https://github.com/krzysztofzablocki/Sourcery) to do this for you until `KeyPath`s get some love.
+
 Let me know what you think!
