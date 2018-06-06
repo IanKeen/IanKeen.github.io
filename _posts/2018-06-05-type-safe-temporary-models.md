@@ -181,6 +181,42 @@ extension User {
 
 ---
 
+## Dragons! 🐉
+
+I should point out that there is one potential gotcha with this type... when you use `update` you are only associating a single `KeyPath` with a single value. What this means is that if you are working with data like:
+
+```swift
+struct Pet {
+    let name: String
+}
+struct User {
+    let name: String
+    let pet: Pet
+}
+```
+
+And you update the value like so:
+
+```swift
+var partial = Partial<User>()
+partial.update(\.pet, to: Pet(name: "Rover"))
+```
+
+This only creates a pairing of the `pet` `KeyPath` and the `Pet` object, you cannot then extract the nested data using:
+
+```swift
+let petName = try partial.value(for: \.pet.name)
+```
+
+This will fail because the inner `Dictionary` does not have an entry for `\.pet.name`... only `\.pet`. You need to ensure you are first extracting the data using a `KeyPath` you have already used _then_ accessing the data from that:
+
+```swift
+let pet = try partial.value(for: \.pet)
+let petName = pet.name
+```
+
+---
+
 ## Wrapping up
 
 Sadly we are not able to provide a default implementation for the convenience `init` _yet_. I've explored a few ways of getting this to work however the core issue is that there is, currently, no way of converting to or from `KeyPath`s to other types.
