@@ -133,9 +133,6 @@ We can use these same features to also build out the getter:
         guard let value = data[keyPath] as? U else { throw Error.valueNotFound }
         return value
     }
-    func value<U>(for keyPath: KeyPath<T, U?>) -> U? {
-        return data[keyPath] as? U
-    }
 ```
 
 Here we are encapsulating the casting of `Any` to the desired type and adding error handling. We also add in an overload to allow us to deal with optionals in a consistent way.
@@ -197,7 +194,7 @@ This is great because once you have the 'root' object the inner `KeyPath` can di
 
 ## Putting it all together
 
-This is what our full `Partial<T>` looks like:
+This is what our full `Partial<T>` looks like. I've also added some overloads to better handle optionals too:
 
 ```swift
 struct Partial<T> {
@@ -208,6 +205,9 @@ struct Partial<T> {
     private var data: [PartialKeyPath<T>: Any] = [:]
     
     mutating func update<U>(_ keyPath: KeyPath<T, U>, to newValue: U?) {
+        data[keyPath] = newValue
+    }
+    mutating func update<U>(_ keyPath: KeyPath<T, U?>, to newValue: U?) {
         data[keyPath] = newValue
     }
     func value<U>(for keyPath: KeyPath<T, U>) throws -> U {
@@ -221,7 +221,10 @@ struct Partial<T> {
         let root = try value(for: keyPath)
         return root[keyPath: inner]
     }
-
+    func value<U, V>(for keyPath: KeyPath<T, U?>, _ inner: KeyPath<U, V>) -> V? {
+        guard let root = value(for: keyPath) else { return nil }
+        return root[keyPath: inner]
+    }
 }
 ```
 
