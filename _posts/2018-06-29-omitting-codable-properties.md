@@ -13,7 +13,7 @@ The former may not be an option, if you have a large number of properties that c
 
 Turns out you can actually skip certain properties, and you don't actually need to make them `Codable` at all!
 
---
+---
 
 ## Example
 
