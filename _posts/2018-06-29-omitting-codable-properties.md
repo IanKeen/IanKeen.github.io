@@ -24,8 +24,8 @@ All you need to do is define a custom `CodingKey` which omits the properties you
 
 ```swift
 struct User: Codable {
-	private enum CodingKeys: String, CodingKey {
-	   case id, name, age
+   private enum CodingKeys: String, CodingKey {
+      case id, name, age
    }
    
    let id: String
@@ -39,6 +39,6 @@ struct User: Codable {
 
 You can now encode an instance of `User` and the `clientData` won't be part of the resulting `Data`. Conversely when you decode incoming data `clientData` will simply use the default value.
 
-Pretty simple right? - it's generally a better idea to model your data as strictly as possible... for example if `clientData` is required than this may not be ideal - but its a handy trick when you need it.
+Pretty simple right? - it's generally a better idea to model your data as strictly as possible... for example if `clientData` is required then this may not be ideal - but its a handy trick when you need it.
 
 Big thanks to [Christina Moulton](https://twitter.com/christinamltn) for teaching me this trick 🤘
