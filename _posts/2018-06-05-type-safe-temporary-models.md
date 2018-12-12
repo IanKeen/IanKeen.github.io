@@ -58,7 +58,7 @@ However it comes with it own set of problems...
 - This `init` can look a little messy having to deal with both required and optional properties
 - What do we do when a required value is missing?
 
-It's worth noting that neither of these solution scale well for other uses, there is a lot of associated boilerplate that we would need to repliacate for each specific use case.
+It's worth noting that neither of these solution scale well for other uses, there is a lot of associated boilerplate that we would need to replicate for each specific use case.
 
 We could try to solve the scaling problem with a `Dictionary`... what about using `[String: Any]`? While this scales fine it's a step backwards in safety.
 
