@@ -5,7 +5,7 @@ commentIssueId: 10
 tags: codable
 ---
 
-Imagine we want to build an app to track books. The API we are building against provides JSON looking like:
+Imagine we want to build an app to track books. The API we are building against provides JSON for authors and book which looks like:
 
 ```json
 // authors
@@ -220,5 +220,7 @@ There are a lot of additions that can be made to improve the ergonomics of these
 - Supporting values other than `String`
 
 But I'll leave these as an exercise for the reader 🤘
+
+You can grab a playground with all the code [here](/public/projects/CodableComposition.zip) 
 
 If you have any feedback feel free to reach out!
