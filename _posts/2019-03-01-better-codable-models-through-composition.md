@@ -8,13 +8,11 @@ tags: codable
 Imagine we want to build an app to track books. The API we are building against provides JSON for authors and book which looks like:
 
 ```json
-// authors
 {
     "identifier": "A13424B6",
     "name": "Robert C. Martin"
 }
 
-// books
 {
     "identifier": "A161F15C",
     "title": "Clean Code",
