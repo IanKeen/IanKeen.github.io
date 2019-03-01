@@ -96,7 +96,7 @@ This is what makes phantom types so useful. In this instance we are adding type-
 
 There is a new problem our new `Identifier<T>`  has introduced. `Codable`, by default, uses the same structure as the type. This means the JSON representation of an identifier would be:
 
-```
+```json
 {"value": "A13424B6"}
 ```
 
@@ -161,7 +161,7 @@ Having a type like `Identified<T>` gives us the flexibility we want without need
 
 As with `Identifier<T>` the default `Codable` behaviour for `Identified<T>` would result in the wrong JSON:
 
-```
+```json
 {
     "identifier": "A13424B6",
     "value": {
