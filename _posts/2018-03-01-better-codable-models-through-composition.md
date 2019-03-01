@@ -1,6 +1,13 @@
-Imagine we want to build an app to track books. The API we are building against provides JSON like:
+---
+layout: post
+title: Better Codable models through composition
+commentIssueId: 10
+tags: codable
+---
 
-```
+Imagine we want to build an app to track books. The API we are building against provides JSON looking like:
+
+```json
 // authors
 {
     "identifier": "A13424B6",
@@ -32,7 +39,7 @@ struct Book: Codable {
 
 Thanks to `Codable` this is all we have to do to get JSON mapping to type-safe models for free!
 
-There are, however, a couple of subtle issues that could cause problems as we progress. The `identifier`s are defined as `String`s, while this seems correct it could lead to a scenario like:
+There are, however, a couple of subtle issues that could cause problems as we progress. The `identifier`s are defined as `String`s, while this isn't _wrong_ it could lead to a scenario like:
 
 ```swift
 func allBooks(by authorIdentifier: String) -> [Book] {
@@ -42,7 +49,7 @@ func allBooks(by authorIdentifier: String) -> [Book] {
 let bobsBooks = allBooks(by: "Robert C. Martin") // oops!
 ```
 
-This would compile and the call-site _seems_ to read correctly.. but it would never return anything because the function expects an authors identifier not their name. Let's look at a type we can use instead of `String` to improve the type-safety here.
+This would compile and although the call-site _seems_ to read correctly it would never return anything because the function expects an authors identifier not their name. Let's look at a type we can use instead of `String` to improve the type-safety here.
 
 ## Identifier\<T>
 
@@ -83,21 +90,19 @@ func allBooks(by authorIdentifier: Identifier<Author>) -> [Book] {
 let bobsBooks = allBooks(by: "Robert C. Martin") // failure!! (the good kind)
 ```
 
-We have now made it impossible to pass the incorrect type to our function otherwise it will not compile.
+We have now made it impossible to incorrectly pass a `String`. We _must_ provide an `Identifier<Author>` instead otherwise it will not compile even though they are all still `String`s underneath.
 
-As for the phantom type, we have now used the same type `Identifier<T>` to represent both `Book` and `Author` identifiers. This can now be used for any number of types and because the generic `T` must be what we specify the complier won't allow us to make any mistakes.
-
-Thats what makes phantom types useful!
+This is what makes phantom types so useful. In this instance we are adding type-safety to an ordinary `String` using a generic placeholder. We can now use `Identifier<T>` for not only our `Book` and `Author` models but any other model with an identifier as well.
 
 ## Codable support
 
-There is a new problem our new `Identifier<T>`  has introduced. `Codable`, by default, `Codable` uses the same structure as the type. This means the JSON representation of an identifier would be:
+There is a new problem our new `Identifier<T>`  has introduced. `Codable`, by default, uses the same structure as the type. This means the JSON representation of an identifier would be:
 
 ```
 {"value": "A13424B6"}
 ```
 
-This is wrong, we still want its JSON representation to be a `String` so it works seamlessly with our API. Let's fix the `Codable` behaviour:
+This is wrong, we still want the JSON representation to be a `String` so it works seamlessly with our API. Let's fix the `Codable` behaviour:
 
 ```swift
 extension Identifier: Codable {
@@ -116,17 +121,17 @@ Now when we convert between the model and JSON it will be a regular `String` rat
 
 Listing books and authors is working really well, now it's time to allow our users to submit new entries. The only problem is our API is responsible for determining the identifiers of new data so we want to send JSON containing everything _but_ the object identifier.
 
-There are a few ways we could tackle this:
+There are different ways we could tackle this:
 
-1. We could maintain a separate model that excludes the `identifier`. This is tedious and fragile but perhaps we could leverage a codegen solution to help? This is a big dependency to add if you aren't already using one though.
+- We could maintain a separate model that excludes the `identifier`. This is tedious and fragile but perhaps we could leverage a codegen solution to help? This is a big dependency to add if you aren't already using one though.
 
-2. We could provide a dummy identifier and remove it from the JSON before sending it to our API. This isn't very nice though, using dummy values in production code seems like something just begging to break and/or corrupt things.
+- We could provide a dummy identifier and remove it from the JSON before sending it to our API. This isn't very nice though, using dummy values in production code seems like something just begging to break and/or corrupt things.
 
 Since we are creating new types today let's look at another one that can be used to solve this problem.
 
 ## Identified\<T>
 
-What we need is a way to define two version of our models. One with an `identifier` when data is sent down and one without an `identifier` when we send data up.
+What we need is a way to define two versions of our models. One with an `identifier` when data is sent down and one without an `identifier` when we send data up.
 
 We can't use the type system to _remove_ properties... but we can use it to _add_ them. 
 
@@ -208,5 +213,12 @@ struct AnyCodingKey: CodingKey {
 ## The end!
 
 There are many ways to skin a cat, but hopefully this has shown a couple of interesting way to solve some common problems using wrapper types and some pretty nifty Swift features.
+
+There are a lot of additions that can be made to improve the ergonomics of these types also such as:
+
+- `ExpressibleBy*` conformance
+- Supporting values other than `String`
+
+But I'll leave these as an exercise for the reader 🤘
 
 If you have any feedback feel free to reach out!
