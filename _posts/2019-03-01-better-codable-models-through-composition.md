@@ -37,7 +37,7 @@ struct Book: Codable {
 
 Thanks to `Codable` this is all we have to do to get JSON mapping to type-safe models for free!
 
-There are, however, a couple of subtle issues that could cause problems as we progress. The `identifier`s are defined as `String`s, while this isn't _wrong_ it could lead to a scenario like:
+There are, however, a couple of subtle issues that could cause problems as we progress. The `identifier`s are defined as `String`s. This isn't _wrong_ but it could lead to a scenario like:
 
 ```swift
 func allBooks(by authorIdentifier: String) -> [Book] {
@@ -55,7 +55,7 @@ We can't change the fact that the server is sending us `String`s but we can chan
 
 Usually when we define a generic type like `Identifier<T>` we also use that `T` elsewhere in the type, something like `let value: T`. However when the `T` is only present as part of the declaration it is called a phantom type.
 
-What's the point then? why make something generic if we aren't using the type? Well we actually _are_ using the type, just not in the usual way. Let's take a look:
+What's the point then? Why make something generic if we aren't using the type? Well we actually _are_ using the type, just not in the usual way. Let's take a look:
 
 ```swift
 struct Identifier<T> {
@@ -117,7 +117,7 @@ Now when we convert between the model and JSON it will be a regular `String` rat
 
 ## Adding new data to the API
 
-Listing books and authors is working really well, now it's time to allow our users to submit new entries. The only problem is our API is responsible for determining the identifiers of new data so we want to send JSON containing everything _but_ the object identifier.
+Listing books and authors is working really well. Now it's time to allow our users to submit new entries. The only problem is our API is responsible for determining the identifiers of new data so we want to send JSON containing everything _but_ the object identifier.
 
 There are different ways we could tackle this:
 
