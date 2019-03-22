@@ -88,7 +88,7 @@ layout: default
       $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
     }
   }
-  $.ajax("https://api.github.com/repos/{{site.github.user}}/{{site.github.project}}/issues/{{page.commentIssueId}}/comments?per_page=100", {
+  $.ajax("https://cors-anywhere.herokuapp.com/https://api.github.com/repos/{{site.github.user}}/{{site.github.project}}/issues/{{page.commentIssueId}}/comments?per_page=100", {
     headers: {Accept: "application/vnd.github.v3.full+json"},
     crossDomain: true,
     dataType: "json",
