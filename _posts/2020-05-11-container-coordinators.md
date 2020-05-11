@@ -5,11 +5,11 @@ commentIssueId: 12
 tags: uikit coordinators
 ---
 
-SwiftUI is the new hotness right now, however not everyone is willing or able to go 'all in' on it just yet. For those of us still working away under UIKit I wanted to share a technique I have been using for a while now to deal with constructing a UI hierarchy and managing navigation.
+SwiftUI is the new hotness right now, however not everyone is willing or able to go 'all in' on it just yet. For those of us still working away under UIKit, I wanted to share a technique I have been using for a while now to deal with constructing a UI hierarchy and managing navigation.
 
 ## Coordinators
 
-You've likely all heard about, and possibly tried, [Coordinators](https://khanlou.com/2015/01/the-coordinator/) a fantastic pattern by [Soroush Khanlou](https://twitter.com/khanlou). I used this pattern myself for a long time. It solved the problem of decoupling navigation from View Controllers so that they could potentially be reused under any number of difference scenarios. 
+You've likely all heard about, and possibly tried, [Coordinators](https://khanlou.com/2015/01/the-coordinator/), a fantastic pattern by [Soroush Khanlou](https://twitter.com/khanlou). I used this pattern myself for a long time. It solved the problem of decoupling navigation from View Controllers so that they could potentially be reused under any number of different scenarios. 
 
 As I used this pattern more and more I would often feel some recurring, nagging, issues. I began to notice things like: 
 
@@ -17,17 +17,17 @@ As I used this pattern more and more I would often feel some recurring, nagging,
 - There was often state to manage with regard to adding and removing children as they execute ("sub" Coordinators).
 - This often meant you needed to know when a child Coordinator would be finished so you could clean them up.
 
-The more I thought about this I began to realize that each Coordinator not only managed a specific [Container Controller](https://developer.apple.com/documentation/uikit/view_controllers) but that it's behaviour ended up copying it's Containers behaviour. It felt like I was reinventing something that already existed over and over. Navigation based Coordinators ended up mostly pushing things. Tab based Coordinators were mostly managing an array of child Coordinators. 
+The more I thought about this I began to realize that each Coordinator not only managed a specific [Container Controller](https://developer.apple.com/documentation/uikit/view_controllers) but that it's behaviour ended up copying its Containers behaviour. It felt like I was reinventing something that already existed over and over. Navigation based Coordinators ended up mostly pushing things. Tab based Coordinators were mostly managing an array of child Coordinators. 
 
-I was essentially writing Coordinators to do the jobs that the UIKit Containers already provides 🤔
+I was essentially writing Coordinators to do the jobs that the UIKit Containers already do 🤔
 
 
 ## Container Controllers as Coordinators
 
 I decided to try subclassing Containers to act as Coordinators, and once I did something pretty cool happened... 
 
-- I no longer had to think about an abstraction, if I wanted a stack based Coordinator I simply subclass `UINavigationController`. If I need a tab based one I can subclass `UITabBarController` and load it up with my `UINavigationController` subclasses.
-- The state for managing the 'graph' is gone as the subclasses deal with this by design.Now all they contain are the functions for moving between View Controllers or other Containers.
+- I no longer had to think about an abstraction: if I wanted a stack based Coordinator I simply subclassed `UINavigationController`. If I needed a tab based one I could subclass `UITabBarController` and load it up with my `UINavigationController` subclasses.
+- The state for managing the 'graph' is gone as the subclasses deal with this by design. Now all they contain are the functions for moving between View Controllers or other Containers.
 - I don't really care about when a flow is 'complete' anymore. When a ViewController is 'popped' from the stack, for example, it simply cleans itself up.
 
 I now found I was able to build each Coordinator, in isolation, and not have to think about how it interacted with other Coordinators. 
@@ -102,13 +102,13 @@ Now that we have decoupled the hierarchy, what about navigation?
 
 Unless you have a lot of experience with building for macOS you may have never _explicitly_ used the [Responder Chain](https://developer.apple.com/documentation/uikit/touches_presses_and_gestures/using_responders_and_the_responder_chain_to_handle_events) on iOS, except perhaps the `becomeFirstResponder()` function.
 
-The Responder Chain is based on the class `UIResponder`. All the common UIKit objects you use inherit from this including `UIViewController`, `UIView`, `UIWindow`, and `UIApplication`. There are a lot of interesting members on this class but for our nees we are only interested in one:
+The Responder Chain is based on the class `UIResponder`. All the common UIKit objects you use inherit from this including `UIViewController`, `UIView`, `UIWindow`, and `UIApplication`. There are a lot of interesting members on this class but for our needs we are only interested in one:
 
 ```swift
 open var next: UIResponder? { get }
 ```
 
-Why is this one so interesting? Well, if allthe items in our view hierarchy implement this it means we basically have a linked list. From any place in the hierarchy we can walk back up the Responder Chain all the way back to the `UIApplicationDelegate`. 
+Why is this one so interesting? Well, if all the items in our view hierarchy implement this it means we basically have a linked list. From any place in the hierarchy we can walk back up the Responder Chain all the way back to the `UIApplicationDelegate`. 
 
 By default, `next` will be:
 
@@ -122,9 +122,9 @@ We can even alter the chain by overriding `next` in our subclasses if needed! Th
 
 ## Tapping into UIResponder
 
-Now we know _what_ the Responder Chain is how can we use it for navigation? Well it turns out that we can extend `UIResponder` with our own custom functions. We can then override these functions elsewhere to perform whatever action is required.
+Now we know _what_ the Responder Chain is; how can we use it for navigation? Well it turns out that we can extend `UIResponder` with our own custom functions. We can then override these functions elsewhere to perform whatever action is required.
 
-Knowing this, let's look at how we can navigate to a friends details when a user taps one from the list. First let's add our `UIResponder` extension
+Knowing this, let's look at how we can navigate to a friend's details when a user taps one from the list. First let's add our `UIResponder` extension
 
 ```swift
 extension UIResponder {
@@ -195,7 +195,7 @@ class NewMessageNavigationController: UINavigationController {
 }
 ```
 
-So within this Container we start by showing the friends list however this time when the user selects someone we will reset the stack to show the composer with the selected friend. We have used our existing friends list in a new context with very little code.
+So within this Container we start by showing the friends list, however this time when the user selects someone we will reset the stack to show the composer with the selected friend. We have used our existing friends list in a new context with very little code.
 
 The only thing left to do is update our existing `MessageListNavigationController` Container to launch this new one:
 
@@ -246,15 +246,15 @@ extension UIResponder {
 }
 ```
 
-Using this you can propagate errors from anywhere in your hierarchy back to a single place, like you `UIWindow`. Remember, the `UIWindow` can be a custom subclass just like your other Containers. You can present a generic error alert from there by overriding `handleError`.
+Using this you can propagate errors from anywhere in your hierarchy back to a single place, like your `UIWindow`. Remember, the `UIWindow` can be a custom subclass just like your other Containers. You can present a generic error alert from there by overriding `handleError`.
 
 ### IBAction
 
-You can also add `@IBAction` to your `UIResponder` extensions, doing this will allow you to call them with `UIButton` taps with no code at all. 
+You can also add `@IBAction` to your `UIResponder` extensions; doing this will allow you to call them with `UIButton` taps with no code at all. 
 
 ### Pay it forward!
 
-Finally don't forget you are dealing with a linked list! Just because you override one of these custom actions doesn't mean you have to end the chain. You might want to update your UI based on the fact an error occured but not mess with the default handling you have in your `UIWindow` i.e.:
+Finally don't forget you are dealing with a linked list! Just because you override one of these custom actions doesn't mean you have to end the chain. You might want to update your UI based on the fact that an error occured but not mess with the default handling you have in your `UIWindow` i.e.:
 
 ```swift
 class MyViewController: UIViewController {
@@ -325,11 +325,11 @@ override func selectedFriend(_ friend: ResponderBox) {
 }
 ```
 
-This is a small inconveience however the good news is you can't really mess this up. For sending it doesn't matter if you accidentally called the `ResponderBox` version as they both result in the action being sent along the Responder Chain. As for the overrides, you can only override the `ResponderBox` version thanks to the `@objc` annotation. If you tried to override the struct version the compiler would give you an error.
+This is a small inconveience, however the good news is you can't really mess this up. For sending it doesn't matter if you accidentally called the `ResponderBox` version as they both result in the action being sent along the Responder Chain. As for the overrides, you can only override the `ResponderBox` version thanks to the `@objc` annotation. If you tried to override the struct version the compiler would give you an error.
 
 ### Modals
 
-In the same way I only move forward using the Containers, I also only move backwards using them. One of the rules I follow is that "the Container that presented something should also dismiss it". However iOS throws a spanner in that by default because regardless of what does the presenting the windows `rootViewController` is the value returned by the presented items `next` value.
+In the same way I only move forward using the Containers, I also only move backwards using them. One of the rules I follow is that "the Container that presented something should also dismiss it". However iOS throws a spanner in that by default because regardless of what does the presenting, the window's `rootViewController` is the value returned by the presented items `next` value.
 
 Luckily we can work around this also using [View Controller Containment](https://developer.apple.com/library/archive/featuredarticles/ViewControllerPGforiPhoneOS/ImplementingaContainerViewController.html):
 
@@ -377,7 +377,7 @@ By overriding `next` we can maintain a Responder Chain that matches how we actua
 
 If you made it this far you probably have the idea but just to recap the rules I like to use when working with this pattern:
 
-- Only Containers perform transitions, this includes push/pop, present/dismiss.
-- Containers configure properties on a View Controllers relevant to their duties , this includes properties like `title`, `navigationItem`s and `tabBarItem`s 
+- Only Containers perform transitions; this includes push/pop, present/dismiss.
+- Containers configure properties on a View Controller relevant to their duties; this includes properties like `title`, `navigationItem`s and `tabBarItem`s 
 
-Much like the more common Coordinator pattern this certainly isn't a silver bullet either. However I have had really good success using it a number of apps so I'd love to hear your feedback if you decide to try it. There are some quirks but overall I find it easier to _lean into_ UIKit rather than try to fight it.
+Much like the more common Coordinator pattern this certainly isn't a silver bullet. However I have had really good success using it a number of apps so I'd love to hear your feedback if you decide to try it. There are some quirks but overall I find it easier to _lean into_ UIKit rather than try to fight it.
