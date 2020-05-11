@@ -352,12 +352,8 @@ class ResponderController: UIViewController {
     addChild(child)
     view.addSubview(child.view)
     
-    NSLayoutConstraint.activate([
-      child.view.topAnchor.constraint(equalTo: view.topAnchor),
-      child.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-      child.view.leftAnchor.constraint(equalTo: view.leftAnchor),
-      child.view.rightAnchor.constraint(equalTo: view.rightAnchor)
-    ])
+    child.view.frame = view.bounds
+    child.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     
     child.didMove(toParent: self)
   }
