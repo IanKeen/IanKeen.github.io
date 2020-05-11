@@ -140,7 +140,7 @@ extension UIResponder {
 }
 ```
 
-This will expose a `selectedFriend(_:)` function to _anything_ on the Responder Chain. Now that we have a way to send the message, lets do so from our friends list:
+This will expose a `selectedFriend(_:)` function to _anything_ on the Responder Chain. Now that we have a way to send the message, let's do so from our friends list:
 
 ```swift
 class FriendListViewController: UITableViewController {
@@ -152,7 +152,7 @@ class FriendListViewController: UITableViewController {
 }
 ```
 
-Finally we need something to act on this message, so lets do that from our `UINavigationController` subclass:
+Finally we need something to act on this message, so let's do that from our `UINavigationController` subclass:
 
 ```swift
 class FriendListNavigationController: UINavigationController {
@@ -173,11 +173,11 @@ We have performed all the work of a Coordinator without re-inventing the wheel.
 
 ## Reusing View Controllers
 
-After putting in the work to decouple our View Controllers, how we can leverage this new pattern in our app? Lets look at how we might reuse our friends list to select a friend to use when creating a new message. 
+After putting in the work to decouple our View Controllers, how we can leverage this new pattern in our app? Let's look at how we might reuse our friends list to select a friend to use when creating a new message. 
 
 You can think of the Containers as the things that provide _context_ or _meaning_ to a View Controllers actions. Our existing `FriendListNavigationController` translates our `selectedFriend` action into showing a friends details on the current stack. The context here being the 'friends tab'.
 
-For this feature we have a new context, so lets create a new Container to deal with it:
+For this feature we have a new context, so let's create a new Container to deal with it:
 
 ```swift
 class NewMessageNavigationController: UINavigationController {
