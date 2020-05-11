@@ -89,8 +89,9 @@ class HomeTabController: UITabBarController {
 
 If we now compose all of these layers together at run time we end up with an application that looks something like:
 
+| Friends Tab | Messages Tab |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="/Users/iankeen/Library/Application Support/typora-user-images/image-20200510175834414.png" alt="image-20200510175834414" style="zoom:50%;" /> | <img src="/Users/iankeen/Library/Application Support/typora-user-images/image-20200510175903387.png" alt="image-20200510175903387" style="zoom:50%;" /> |
+| <img src="/images/container-coordinators/tab1.png" alt="Friends tab" style="zoom:50%;" /> | <img src="/images/container-coordinators/tab2.png" alt="Messages tab" style="zoom:50%;" /> |
 
 Notice that the `UINavigationController` related properties like `title` are handled by the `UINavigationController` subclasses and the `UITabBarController` related properties like `tabItem` are handled by the `UITabbarController` subclasses. This further decouples the individual View Controllers from the context they are being shown in.
 
