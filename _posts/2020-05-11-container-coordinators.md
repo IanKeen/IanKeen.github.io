@@ -346,16 +346,19 @@ class ResponderController: UIViewController {
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     addChild(child)
     view.addSubview(child.view)
+    
     NSLayoutConstraint.activate([
       child.view.topAnchor.constraint(equalTo: view.topAnchor),
       child.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
       child.view.leftAnchor.constraint(equalTo: view.leftAnchor),
       child.view.rightAnchor.constraint(equalTo: view.rightAnchor)
     ])
+    
     child.didMove(toParent: self)
   }
   override var next: UIResponder? {
