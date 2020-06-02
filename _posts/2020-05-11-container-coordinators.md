@@ -370,7 +370,7 @@ extension UIViewController {
 }
 ```
 
-By overriding `next` we can maintain a Responder Chain that matches how we actually construct the UI hierarchy. All you need to do is use `presentModal(_:animated:completion)` instead of the usual `preset(_:animated:completion)` function.
+By overriding `next` we can maintain a Responder Chain that matches how we actually construct the UI hierarchy. All you need to do is use `presentModal(_:animated:completion:)` instead of the usual `present(_:animated:completion:)` function.
 
 
 ## Recap
