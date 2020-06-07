@@ -331,6 +331,8 @@ This is a small inconveience, however the good news is you can't really mess thi
 
 In the same way I only move forward using the Containers, I also only move backwards using them. One of the rules I follow is that "the Container that presented something should also dismiss it". However iOS throws a spanner in that by default because regardless of what does the presenting, the window's `rootViewController` is the value returned by the presented items `next` value.
 
+What this means in our example is; Our presented `NewMessageNavigationController` would return the `HomeTabController` as its `next` responder instead of the `MessageListNavigationController` that presented it.
+
 Luckily we can work around this also using [View Controller Containment](https://developer.apple.com/library/archive/featuredarticles/ViewControllerPGforiPhoneOS/ImplementingaContainerViewController.html):
 
 ```swift
