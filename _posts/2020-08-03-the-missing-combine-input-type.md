@@ -1,11 +1,9 @@
 ---
 layout: post
-title: ...
-commentIssueId: x
+title: The missing Combine input type
+commentIssueId: 17
 tags: combine, mvvm, propertywrapper
 ---
-
-# The missing Combine Input type
 
 Like most people I have been tinkering with SwiftUI and Combine lately. Mostly using the MVVM pattern since that's what I know best. 
 One thing I miss from RxSwift that Combine doesn't seem to have is a dedicated _input only_ type. 
@@ -61,7 +59,7 @@ So how do we go about _triggering_ the work and eventually get a value from this
 
 But didn't we already decide Combine doesn't have any input types? It _does_ have ways to model inputs... they just come with some baggage.
 
-The type Combine gives us to send values are called `Subject`s. _But_, they are _both_ input _and_ output (`Publisher`). 
+The types Combine gives us to send values are called `Subject`s. _But_, they are _both_ input _and_ output (`Publisher`). 
 This means that while we can use them to trigger our authentication attempt we need to be careful about how we use them if we care about encapsulation.
 
 Let's introduce a `Subject` and get our view model actually doing something:
@@ -87,31 +85,38 @@ class AuthViewModel {
 }
 ```
 
-Now we have defined an input we can use it to attempt to authenticate and, finally, emit the result through our output like so:
+A `PassthroughSubject` does exactly what it  says on the label.  It _passes_ values _through_ that it receives via it's `send` function fulfilling its function as an _input_. It then uses those values as the source for its function as a `Publisher`, or _output_.
+
+Now we have defined an input we can use it to attempt to authenticate and, finally, emit the result through our output. Let's take a look at what some code using our view model might look like:
 
 ```swift
 let viewModel = AuthViewModel()
 
-viewModel.signInResult
+viewModel
+    .signInResult
     .sink { result in
-        print(result) // success(Token(value: "foobar"))
+        print(result) // output: success(Token(value: "foobar"))
     }
     .store(in: &cancellables)
 
-viewModel.signIn.send((username: "iankeen", password: "super_secret_password"))
+viewModel.signIn.send((username: "iankeen", password: "super_secret_password")) // input
 ```
 
 Not bad..., however remember `Subject`s are both input _and_ output. This means we have also left the door open for code like this:
 
 ```swift
-viewModel.signIn
+viewModel
+    .signIn
     .sink { result in
         somethingUnexpected(with: result)
     }
     .store(in: &cancellables)
 ```
 
-Since `Subject`s can be subscribed to there could be hard to track down side effects outside the control of our view model. 
+Consider the situation where you happen to be tracking down a bug that occurs when your users attempt to authenticate. 
+Because we have exposed a `Subject` we have to check all the subscriptions to the `signInResult` output _but also_ any subscriptions to the `signIn` input! 
+This makes things harder than they should be...
+
 Let's take a look at a simple approach to get our encapsulation back!:
 
 ```swift
@@ -221,8 +226,9 @@ protocol AuthViewModelType {
 }
 ```
 
-This is a bit of a show stopper... I don't usually use protocols for view models but for other Combine friendly dependencies I might create 
-I want to be able to enforce strict input/outputs.
+Since we can't enforce `@Input` it means code that only knows about the `AuthViewModelType` wouldn't have visibility to call the `$signIn.send`  function.
+
+This is a bit of a show stopper... I don't usually use protocols for view models but for other Combine friendly dependencies I might create I want to be able to enforce strict input/outputs.
 
 Take two... let's try using a concrete type:
 
@@ -236,7 +242,10 @@ struct AnyConsumer<Output> {
 }
 ```
 
-`AnyConsumer` feels like a nice parallel with `AnyPublisher` and now we can use it in our protocol like so:
+I'm calling this `AnyConsumer` because it feels like a nice parallel with `AnyPublisher`.  This type allows us to expose _just_ the `send` function making this type _input only_ just like we want... 
+however if we make the subject `private` nothing is going to be able to access it. It feels like we are stuck in a catch 22.
+
+Let's go with it for now and update the rest of our code, firstly let's make our protocol enforce our strict input:
 
 ```swift
 protocol AuthViewModelType {
@@ -248,7 +257,7 @@ protocol AuthViewModelType {
 }
 ```
 
-Let's update our view model again with these changes:
+The next step is to update our view model to conform to these changes:
 
 ```swift
 class AuthViewModel: AuthViewModelType {
@@ -272,34 +281,34 @@ class AuthViewModel: AuthViewModelType {
 }
 ```
 
-Moving to a concrete type allowed us to enforce our strict input in the protocol, but we lost the encapsulation benefits of the PropertyWrapper approach.
+Just as we expected, while we gained the encapsulation benefits of a strict input type the view model isn't able to access the underlying `Subject` to use the values coming in.
 
-What we need is a combination of these two approaches to get all the benefits and, as it turns out, you can do exactly that.
+We need a way to expose thee `Subject` but _only_ to our view model. As it turns out we can actually use PropertyWrappers again to accomplish that!
 
-We can use a PropertyWrapper to expose the `Subject` for the enclosing type exclusively but keep it `private` for everything else.
+We can bring back our `@Input` PropertyWrapper in a new form. This time it will work _with_ `AnyConsumer` to expose the `Subject` to the enclosing type but will be hidden from everything else.
 
 Lets update `AnyConsumer` and see what that looks like:
 
 ```swift
+@propertyWrapper
+struct Input<Output> {
+    let wrappedValue: AnyConsumer<Output>
+
+    var subject: PassthroughSubject<Output, Never> { wrappedValue.subject }
+}
+
 struct AnyConsumer<Output> {
-    @propertyWrapper
-    struct Accessor {
-        let wrappedValue: AnyConsumer<Output>
+    fileprivate let subject = PassthroughSubject<Output, Never>()
 
-        var subject: PassthroughSubject<Output, Never> { wrappedValue.subject }
-    }
-
-    private let subject = PassthroughSubject<Output, Never>()
-
-    public func send(_ value: Output) {
+    func send(_ value: Output) {
         subject.send(value)
     }
 }
 ```
 
-Using this `@AnyConsumer.Accessor` property from our view model unlocks exclusive access to the underlying `subject`.
+Now we can Combine (pun intended) our `@Input` PropertyWrapper with our `AnyConsumer` to restrict access to each side of the underlying `Subject`. 
 
-This means our view model can once again use the values being sent to perform the work and drive the outputs:
+We have exclusive access for the view model to read the input:
 
 ```swift
 class AuthViewModel: AuthViewModelType {
@@ -307,7 +316,7 @@ class AuthViewModel: AuthViewModelType {
     let signInResult: AnyPublisher<Result<Token, Error>, Never>
 
     // MARK: - Inputs
-    @AnyConsumer.Accessor var signIn = AnyConsumer<(username: String, password: String)>()
+    @Input var signIn = AnyConsumer<(username: String, password: String)>()
 
     // MARK: - Lifecycle
     init() {
@@ -323,17 +332,37 @@ class AuthViewModel: AuthViewModelType {
 }
 ```
 
-As before, anything using the view model can _only_ see and call `.send`:
+And, as before, anything using the view model can _only_ see and call `.send`:
 
 ```swift
 viewModel.signIn.send((username: "...", password: "..."))
 ```
 
-It took a bit to get here, but we have managed to obtain our strict input/output separation.
-
 ## Wrap up
 
-Congrats for hanging in this far! Using a PropertyWrapper to conditionaly expose access to things is certainly one of the more interesting uses of 
-PropertyWrappers I have played with lately but I think the results are pretty neat.
+So after all that we have ended up with something that allows us to nicely encapsulate access to two sides of a `Subject`.  
+Is the extra abstraction worth it over our original private subject/function solution? There are a couple of nice advantages our final solution has that I can think of
 
-As always, feel free to reach out with any questions or comments!
+Less typing... that's always a nice win. Using `AnyConsumer` we  don't have to maintain a private subject as well as an additional function to get into the `send` function.
+
+An explicit type... having this not only draws a nice parallel with other output types like `AnyPublisher` but it gives us an anchor point for things like UI bindings. 
+Think about how you might write a button binding today:
+
+```swift
+someButton.combine.tap // example tap publisher
+    .sink { [unowned self] in 
+        self.viewModel.signIn()
+    }
+```
+
+Using  `AnyConsumer` we could rewrite this subtly: 
+
+```swift
+someButton.combine.tap
+    .bind(to: viewModel.signIn)
+    .store(in: &cancellables)
+```
+
+The change is minor but again it's slightly more concise and we can remove the burden of things like managing memory semantics and capture lists from our users.
+
+That's all I have for now, but I'd love to hear any thoughts on this :)
