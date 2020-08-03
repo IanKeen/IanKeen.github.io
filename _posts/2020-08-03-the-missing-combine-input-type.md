@@ -10,7 +10,7 @@ One thing I miss from RxSwift that Combine doesn't seem to have is a dedicated _
 In RxSwift there is a protocol called `Observer` with a provided concrete type of `AnyObserver<T>`. 
 An `Observer` only exposes ways to send values _in_ but not subscribe to those changes elsewhere.
 
-So... why would this be useful? Well I'm a bit of a stickler for encapsulation. 
+So why would this be useful? Well I'm a bit of a stickler for encapsulation. 
 When I'm building, but more importantly debugging, my view models I like to know how data is flowing through them. 
 With strict separation between inputs and outputs I know that any side effects are _only_ triggered as a result of values coming out of the outputs. 
 Likewise I also know that the only thing that could trigger those outputs are the _inputs_ and reacting to the inputs is _only_ able to happen 
@@ -55,9 +55,9 @@ when it fails it will output a `.failure(Error)` value.
 
 So how do we go about _triggering_ the work and eventually get a value from this output? We need an input!
 
-## Inputs... ?
+## Inputs… ?
 
-But didn't we already decide Combine doesn't have any input types? It _does_ have ways to model inputs... they just come with some baggage.
+But didn't we already decide Combine doesn't have any input types? It _does_ have ways to model inputs, they just come with some baggage.
 
 The types Combine gives us to send values are called `Subject`s. _But_, they are _both_ input _and_ output (`Publisher`). 
 This means that while we can use them to trigger our authentication attempt we need to be careful about how we use them if we care about encapsulation.
@@ -102,7 +102,7 @@ viewModel
 viewModel.signIn.send((username: "iankeen", password: "super_secret_password")) // input
 ```
 
-Not bad..., however remember `Subject`s are both input _and_ output. This means we have also left the door open for code like this:
+Not bad, however remember `Subject`s are both input _and_ output. This means we have also left the door open for code like this:
 
 ```swift
 viewModel
@@ -115,9 +115,9 @@ viewModel
 
 Consider the situation where you happen to be tracking down a bug that occurs when your users attempt to authenticate. 
 Because we have exposed a `Subject` we have to check all the subscriptions to the `signInResult` output _but also_ any subscriptions to the `signIn` input! 
-This makes things harder than they should be...
+This makes things harder than they should be…
 
-Let's take a look at a simple approach to get our encapsulation back!:
+Let's take a look at a simple approach to get our encapsulation back:
 
 ```swift
 class AuthViewModel {
@@ -149,9 +149,9 @@ Much better! We now have closed off the ability for unintended side effects by g
 Consumers of the view model can now use the `signIn(username:password:)` function to perform an authentication attempt.
 
 Now we could stop here and it would be perfectly fine, but having to maintain a `Subject` _and_ a function bothers me just 
-enough to potentially over-engineer an alternative... strap yourself in.
+enough to potentially over-engineer an alternative… strap yourself in.
 
-## Inputs!... for real this time
+## Inputs!… for real this time
 
 What we want is a type that exposes a way to _send_ values publicly, but _derive_ streams using them internally. 
 My first thought was to try using PropertyWrappers since we can take advantage of the `_value` syntax to gain the encapsulation we want:
@@ -172,7 +172,7 @@ struct Input<Parameters> {
 }
 ```
 
-There's a fair bit going on in this little snippet so let's unpack it quickly...
+There's a fair bit going on in this little snippet so let's unpack it quickly…
 
 The reason I first thought PropertyWrappers might be a good solution is because they allow us to expose things differently. 
 We can use the publicly visible members (`wrappedValue` and `projectedValue`) to expose the parameters for the input and a way to send them. 
@@ -228,9 +228,9 @@ protocol AuthViewModelType {
 
 Since we can't enforce `@Input` it means code that only knows about the `AuthViewModelType` wouldn't have visibility to call the `$signIn.send`  function.
 
-This is a bit of a show stopper... I don't usually use protocols for view models but for other Combine friendly dependencies I might create I want to be able to enforce strict input/outputs.
+This is a bit of a show stopper. I don't usually use protocols for view models but for other Combine friendly dependencies I might create I want to be able to enforce strict input/outputs.
 
-Take two... let's try using a concrete type:
+Take two, let's try using a concrete type:
 
 ```swift
 struct AnyConsumer<Output> {
@@ -242,10 +242,10 @@ struct AnyConsumer<Output> {
 }
 ```
 
-I'm calling this `AnyConsumer` because it feels like a nice parallel with `AnyPublisher`.  This type allows us to expose _just_ the `send` function making this type _input only_ just like we want... 
-however if we make the subject `private` nothing is going to be able to access it. It feels like we are stuck in a catch 22.
+I'm calling this `AnyConsumer` because it feels like a nice parallel with `AnyPublisher`.  This type allows us to expose _just_ the `send` function making this type _input only_ just like we want;
+however, if we make the subject `private` nothing is going to be able to access it. It feels like we are stuck in a catch 22.
 
-Let's go with it for now and update the rest of our code, firstly let's make our protocol enforce our strict input:
+Let's go with it for now and update the rest of our code; first let's make our protocol enforce our strict input:
 
 ```swift
 protocol AuthViewModelType {
@@ -343,9 +343,9 @@ viewModel.signIn.send((username: "...", password: "..."))
 So after all that we have ended up with something that allows us to nicely encapsulate access to two sides of a `Subject`.  
 Is the extra abstraction worth it over our original private subject/function solution? There are a couple of nice advantages our final solution has that I can think of
 
-Less typing... that's always a nice win. Using `AnyConsumer` we  don't have to maintain a private subject as well as an additional function to get into the `send` function.
+Less typing: that's always a nice win. Using `AnyConsumer` we  don't have to maintain a private subject as well as an additional function to get into the `send` function.
 
-An explicit type... having this not only draws a nice parallel with other output types like `AnyPublisher` but it gives us an anchor point for things like UI bindings. 
+An explicit type: having this not only draws a nice parallel with other output types like `AnyPublisher` but it gives us an anchor point for things like UI bindings. 
 Think about how you might write a button binding today:
 
 ```swift
