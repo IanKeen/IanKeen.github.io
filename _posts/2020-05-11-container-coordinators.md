@@ -219,7 +219,7 @@ class MessageListNavigationController: UINavigationController {
 }
 ```
 
-We have updated the existing Container to attach a navigation item that launches our new message composer Container. Notice that the View Controllers are still bissfully unaware of how they are being used. It is the Containers that contain the details about how they all come together.
+We have updated the existing Container to attach a navigation item that launches our new message composer Container. Notice that the View Controllers are still blissfully unaware of how they are being used. It is the Containers that contain the details about how they all come together.
 
 
 ## Other interesting uses
