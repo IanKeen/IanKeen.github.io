@@ -401,6 +401,7 @@ pre code {
     }
     #page-title .title.large {
         padding-top: 20px;
+        font-size: var(--page-title-font-size);
     }
     #page-title .subtitle {
         padding-bottom: 20px;
