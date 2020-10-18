@@ -1,0 +1,18 @@
+.language-swift .comment {
+    color: #8e8d8a;
+}
+.language-swift .keyword {
+    color: #ab3b61;
+}
+.language-swift .identifier {
+    color: #123e6a;
+}
+.language-swift .type {
+    color: #66a0be;
+}
+.language-swift .literal {
+    color: red;
+}
+.language-swift .directive {
+    color: red;
+}
