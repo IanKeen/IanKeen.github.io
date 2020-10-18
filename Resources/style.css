@@ -396,6 +396,9 @@ pre code {
     #page-title {
         position: static;
     }
+    #page-title .title {
+        font-size: 100%;
+    }
     #page-title .title.large {
         padding-top: 20px;
     }
