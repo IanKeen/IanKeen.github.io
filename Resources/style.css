@@ -390,6 +390,18 @@ pre code {
 }
 
 @media (max-width: 650px) {
+    #page-header {
+        padding: 0px 10px;
+    }
+    #page-title {
+        position: static;
+    }
+    #page-title .title.large {
+        padding-top: 20px;
+    }
+    #page-title .subtitle {
+        padding-bottom: 20px;
+    }
     #page-content.responsive {
         grid-auto-flow: row;
     }
