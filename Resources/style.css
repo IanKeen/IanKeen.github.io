@@ -152,8 +152,9 @@ body {
     justify-content: center;
     text-align: center;
 
-    position: -webkit-sticky;
-    position: sticky;
+    /* position: -webkit-sticky; */
+    /* position: sticky; */
+    position: static;
     top: var(--header-height);
 
     background-color: var(--background-color);
